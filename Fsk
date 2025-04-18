@@ -1,0 +1,120 @@
+clear
+thr = 17;
+A=[0	1
+0.005	0.99989425
+0.01	0.99958825
+0.02	0.9984905
+0.04	0.9953665
+0.08	0.98951675
+0.16	0.97664575
+0.32	0.950223
+0.64	0.91266025
+1.28	0.86790725
+2.56	0.8144445
+5.12	0.73442025
+10.24	0.62299
+20.48	0.4890295
+40.96	0.3193885
+81.92	0.1728645
+163.84	0.06713025
+327.68	0.02070325
+655.36	-0.002271
+1310.72	-0.0053605
+2621.44	0.00444325
+];
+
+A=A(1:thr,:);
+%%
+color = jlGetColor("彩虹");
+sample = 11;
+cr = 10;
+syms t
+myfun=fittype('a*exp(-(t/b)^c)','independent','t','coefficients',{'a','b','c'});
+x=0.005:0.01:max(A(:,1));
+%x=0.005:0.01:10^4;
+figure(1)
+si=size(A);
+kk=si(2);
+cc = 0;
+for i = 2:1:kk
+    cc = cc+1;
+    if i <=cr       
+        symbol = '-';
+        symbol2 = 'o';
+    end
+    if i >=cr+1
+        if i ==sample
+            cc=1;
+        end
+        symbol='-.';
+        symbol2 = 'x';
+    end
+    k=12*i;
+    r1=(0+1/sample*(cc-1));
+    r2=0;
+    r3=1-1/sample*(cc-1);
+    tmpa=A(1:si(1),1);
+    tmpb=A(1:si(1),i);   
+    indx=find(tmpb<0);    
+    tmpa(indx)=[]
+    tmpb(indx)=[]
+    fun=fit( tmpa,tmpb,myfun  );
+    %,'StartPoint',[0.9 0.01 2]
+    F(i)=fun.b;
+    beita(i)=fun.c;
+    alfer(i)=fun.a;
+    taurev(i)=1/(fun.b/fun.c*gamma(1/fun.c));
+   
+    y=fun(x);
+    y=y';
+    
+    %T(i)=loglog(A(:,1),A(:,i),symbol2,'Color',color(cc),'Markerfacecolor',color(cc),'markersize',4);
+    T(i)=loglog(A(:,1),A(:,i),symbol2,'markersize',4);
+    hold on
+    %H(i)=loglog(x,y,symbol,'Color',color(cc),'linewidth',1.2);
+    H(i)=loglog(x,y,symbol,'linewidth',1.2);
+    hold on
+end
+hold on
+%plot([0.01  10000],[0.2 0.2] )
+ylim([0.1 1])
+xlim([0.005 500])
+xticks([ 0.01 0.1 1 10 100 1000])
+xlabel('t/τ')
+ylabel('F_s(k)')
+%ylabel('H(t)')
+set(gca,'Fontsize',14)
+set(gca,'Linewidth',1.4)
+%legend([T(2:4),T(5:7)],'T = 1.4','T = 1.3','T = 1.1','T = 1.4','T = 1.3','T = 1.1','NumColumns',2)
+%legend([T(2:4)],'T = 1.4','T = 1.3','T = 1.2','T = 1.1','T = 1.0')
+%legend([T(2:5)],'Mole fraction of salt = 0','Mole fraction of salt = 0.25','Mole fraction of salt = 0.50','Mole fraction of salt = 0.75')
+legend box off
+set(gca,'fontsize',14)
+set(gca,'Linewidth',1.6,'Fontweight','bold')
+set(gcf,'Position',[200 220 520 440]*0.9)
+%xlabel('Fontweight','bold')
+set(gca,'TickLength',[0.015 0.015],'Fontname', 'Arial')
+set(gca,'Xminortick','on')
+%%
+plot(2:length(taurev),taurev(2:length(taurev)),'-*','Linewidth',1.6)
+%%
+xx = [1.4 1.3 1.1 1.0 0.9];
+yy1= taurev(2:6);
+yy2= taurev(7:11);
+semilogy(1./xx,yy1,'-x','Linewidth',1.6,'color','red')
+hold on
+semilogy(1./xx,yy2,'-o','Linewidth',1.6,'color','blue')
+set(gca,'Fontsize',14)
+set(gca,'Linewidth',1.4)
+legend('PLiMTFSI-46/POEM + LiTFSI','PLiMTFSI-46/POEM')
+legend box off
+xlim([0.6 1.2])
+xlabel('1/T^*')
+ylabel('τ^{-1}')
+set(gca,'fontsize',14)
+set(gca,'Linewidth',1.6,'Fontweight','bold')
+set(gcf,'Position',[200 220 520 440]*0.9)
+legend box off
+%xlabel('Fontweight','bold')
+set(gca,'TickLength',[0.015 0.015],'Fontname', 'Arial')
+set(gca,'Xminortick','on')
