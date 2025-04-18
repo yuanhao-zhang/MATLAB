@@ -1,0 +1,115 @@
+clear
+A=[];
+%%
+for i =1:4
+n_atoms = [16536 18472 21124 24552 29338];
+tg=[];
+tg(:,1)=A(:,2*(i-1)+1);
+tg(:,2)=A(:,2*i);
+tg(:,2)=n_atoms(i)./tg(:,2);
+cc=0;
+
+
+ind = find(tg(:,1)<=0.2| tg(:,1)>1.5);
+tg(ind,:)=[];
+
+%plot(tg(:,1),tg(:,2),'.')
+hold on
+
+
+ylim([min(tg(:,2)) max(tg(:,2))])
+set(gca,'fontsize',14)
+set(gca,'Linewidth',1.6,'Fontweight','bold')
+set(gcf,'Position',[200 220 490 440]*0.9)
+legend box off
+%xlabel('Fontweight','bold')
+set(gca,'TickLength',[0.015 0.015],'Fontname', 'Arial')
+set(gca,'Xminortick','on')
+set(gca,'Yminortick','on')
+
+%legend off
+
+hold on
+%%
+color = [0 0 1
+         1 0 1 
+         0 1 0
+         1 1 0];
+tga=0.83
+%gtmin=0.5;
+%gtmax=0.76;
+dt=1/1000;
+errobv = zeros(1,11);
+line = zeros(1,11);
+col = zeros(1,11);
+for j = 1:199
+    dev(j) = (j-100)/1000;
+    tgappro=tga+dev(j);
+    for k = 1:10
+    a=k/100;
+    gtmin=tgappro-a;
+    gtmax=tgappro+a;
+    tgmin=gtmin;
+    tgmax=gtmax;
+    w=gtmax-gtmin;
+    trange = tgmin:dt:tgmax;        
+    t=tgappro;
+    glass_ind=find(tg(:,1)<=tgmin);
+    G=polyfit(tg(glass_ind,1),tg(glass_ind,2),1);
+    melt_ind=find(tg(:,1)>=tgmax);
+    M=polyfit(tg(melt_ind,1),tg(melt_ind,2),1);
+    cindex= find(abs(tg(:,1)-t)==min(abs(tg(:,1)-t))) ;
+    c1=tg(cindex(1),2);
+    test=w*0.5*(M(1)-G(1)).*log(cosh( (tg(:,1)-t)/w  ))+(tg(:,1)-t).*(0.5*(M(1)+G(1)))+c1;
+    error(j,k)=sum( (test-tg(:,2)).*(test-tg(:,2)) );
+    end
+    error(error==0)=20;
+end
+[line,col]=find( error ==min(min(error))) ;
+m = find(errobv == min(errobv));
+tgmin = tga+ dev(line) - col/100; 
+tgmax = tga+ dev(line) + col/100;
+
+t=(tga+dev(line));
+w=tgmax-tgmin;
+cindex=find( abs(tg(:,1)-t)==min(abs(tg(:,1)-t)) );
+c=tg(cindex,2);
+
+glass_ind=find(tg(:,1)<=tgmin);
+G=polyfit(tg(glass_ind,1),tg(glass_ind,2),1);
+melt_ind=find(tg(:,1)>=tgmax);
+M=polyfit(tg(melt_ind,1),tg(melt_ind,2),1);
+
+f=fittype('w*0.5*(M-G)*log(cosh( (t-tg)/w  ))+(t-tg)*(0.5*(M+G))+c','independent','t','coefficients',{'M','G','w','c','tg'});
+cfun = fit(tg(:,1),tg(:,2),f,'Startpoint',[M(1),G(1),w,c,t]);
+xi = tg(:,1);
+yi = cfun(xi);
+figure(2)
+plot(tg(:,1)*400,tg(:,2),'.')
+hold on
+plot(xi*400,yi,'-','Linewidth',2.5,'color',color(i,:))
+set(gca,'Fontsize',16)
+set(gca,'linewidth',1.6)
+xlabel('T/K')
+ylabel('density/σ^{-3}')
+tmp=confint(cfun);
+tgfit = cfun.tg*400;
+tger = (tmp(2,5) - tmp(1,5))/2*400;
+[cfun.tg;tgfit;tger]
+hold on
+H(i) = plot([tgfit,tgfit],[0 1],'color',color(i,:))
+legend(H(i),'0.1','0.2','0.3','0.4')
+hold on
+set(gca,'fontsize',14)
+set(gca,'Linewidth',1.6,'Fontweight','bold')
+set(gcf,'Position',[200 220 520 440]*0.9)
+%legend box off
+%xlabel('Fontweight','bold')
+set(gca,'TickLength',[0.015 0.015],'Fontname', 'Arial')
+set(gca,'Xminortick','on')
+set(gca,'Yminortick','on')
+%legend off
+set(gca,'ytick');
+set(gca,'yTickLabel',num2str(get(gca,'yTick')','%.3f'));
+
+end
