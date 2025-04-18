@@ -1,0 +1,86 @@
+clear
+
+C=[		];
+%%
+target3= zeros(1,8)+4.479808057;
+target= zeros(1,8)+5.117074456;
+target2= zeros(1,8)+4.141957165;
+dhold =length(C)-399;
+holdup=length(C)-0;
+N=50;
+sample=width(C)/5;
+
+%x=105.5:0.5:107;
+%x=107:0.5:109;
+
+%angle=0.5*(pi-([110 110 110 110 110]/180*pi));
+for i = 1:sample
+    ee = C(dhold:holdup,3+(i-1)*5);
+    Angle=C(dhold:holdup,4+(i-1)*5);
+    l=C(dhold:holdup,2+(i-1)*5);
+    rho=C(dhold:holdup,1+(i-1)*5);
+    %theta=acos(A);          
+    lk = ee./(49*l.*cos(0.5*(Angle/180*pi)));
+    %tmp=(AP.*AP).*rho.*l*cos(angle(i));    
+    m(i,1)=mean(lk);
+    m(i,2)=mean(l);
+    m(i,3)=mean(Angle);
+    m(i,4)=mean(rho);
+    st(i,1)=std(lk);
+    st(i,2)=std(l);
+    st(i,3)=std(Angle);
+    st(i,4)=std(rho);
+    %tmp1=(AP1.*AP1).*rho.*l;
+    tmp1=(lk.*lk).*rho.*l.*cos(0.5*Angle/180*pi);   
+    nk1(i)=mean(tmp1);
+    sap1(i)=std(tmp1);
+
+end
+x=180-m(:,3)';
+%angle=(pi-x/180*pi)*0.5;
+%%
+%x=[0.9 0.95 1.0 1.05 1.1 1.15 1.2 1.25];
+%x=[5*10^-5 4*10^-5 3*10^-5 2*10^-5 1*10^-5];
+
+hold on
+plot(x,target(1:sample),"-o" ,'color',[1 0 0], "MarkerSize" ,5, ... 
+    "MarkerEdgeColor" , [1 0 0] ,"MarkerFaceColor" ,[1 0 0],...
+    'Linewidth',1.5)
+hold on
+plot(x,target2(1:sample),"-o" ,'color',[0 0 1 ], "MarkerSize" ,5, ... 
+    "MarkerEdgeColor" , [0 0 1 ] ,"MarkerFaceColor" ,[0 0 1 ],...
+    'Linewidth',1.5)
+hold on
+plot(x,target3(1:sample),"-o" ,'color',[0.8 0.8 0], "MarkerSize" ,5, ... 
+    "MarkerEdgeColor" , [0.8 0.8 0] ,"MarkerFaceColor" ,[0.8 0.8 0],...
+    'Linewidth',1.5)
+hold on
+%errorbar(x,nk(1:sample),sap(1:sample),"-s" ,'color',[0 .4 0], "MarkerSize" ,5, ... 
+ %   "MarkerEdgeColor" , [0 .4 0] , "MarkerFaceColor" ,[0 .4 0],...
+ %   'Linewidth',1.5);
+hold on
+errorbar(x,nk1(1:sample),sap1(1:sample),"--s" ,'color',[0 .8 0], "MarkerSize" ,5, ... 
+    "MarkerEdgeColor" , [0 .8 0] , "MarkerFaceColor" ,[0 .8 0],...
+    'Linewidth',1.5);
+%xlim([0 6]*10^0)
+box on
+%xticks([104 106 108 110 112 114 116 118 ])
+%xticks(107:1:111)
+xlim([min(x)-0.5 max(x)+0.5])
+set(gca,'Linewidth',1.6)
+set(gca,'Fontsize',16)
+ylim([2 7])
+ylabel('n_k' )
+xlabel('<θ>')
+lgd=legend('n_{k,PEO}','n_{k,PMMA}','n_{k,PS}','n_{k,sim}');
+set(lgd,'NumColumns',2)
+legend box off
+
+set(gca,'fontsize',14)
+set(gca,'Linewidth',1.6,'Fontweight','bold')
+set(gcf,'Position',[200 220 490 440]*0.9)
+legend box off
+%xlabel('Fontweight','bold')
+set(gca,'TickLength',[0.015 0.015],'Fontname', 'Arial')
+set(gca,'Xminortick','on')
+set(gca,'Yminortick','on')
