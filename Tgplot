@@ -1,0 +1,23 @@
+clear
+A1=([-56.98	-25.06	-8.67	5.58	7.93	10.06	11.93]+273.15)/400;
+A2=([-103.2231034	-97.55590195	-96.00532308	-98.03919909	-95.29164029	-92.50930084	-94.54974419
+]+273.15)/400;
+B1=[0 0 0 0 0 0 0];
+B2=[0 0 0 0 0 0 0
+];
+plot([5 10 20 40 60 80 100],A1(1,:),'-s','markersize',5,'linewidth',2,'color',[0 .8 0],'markerfacecolor',[0 .8 0])
+hold on
+plot([5 10 20 40 60 80 100],A2(1,:),'-o','markersize',5,'linewidth',2,'color',[.8 0 0],'markerfacecolor',[.8 0 0])
+
+%xlim([0 3600])
+ylim([0.35 0.8])
+lgd=legend('θ-adjusted','κ-adjusted');
+legend box off
+set(gca,'Ticklength',[0.015 0.015])
+set(gcf,'position',[400 200 460 400])
+set(gca,'Fontsize',16)
+set(gca,'Linewidth',2,'Fontweight','bold')
+set(gca, 'LooseInset', [0,0,0.05,0.05]);
+set(gca,'XMinorTick','on');
+set(gca,'YMinorTick','on');
+set(gca, 'Fontname', 'Times new roman');
